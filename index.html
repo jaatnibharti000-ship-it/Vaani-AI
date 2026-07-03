@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>⚙️ ROBO-TRANSLATE // UNIT-7</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00ffe0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RoboTranslate">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" href="icon-192.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+      --void:#000508;
+      --deep:#010d14;
+      --hull:#041520;
+      --plate:#071f2e;
+      --panel:#0a2840;
+      --text:#b8ffe8;
+      --text2:#5de8b8;
+      --text3:#1a6b50;
+      --neon:#00ffe0;
+      --neon2:#00ffa0;
+      --neon3:#00d4ff;
+      --warn:#ff6b00;
+      --warn2:#ffaa00;
+      --danger:#ff2060;
+      --danger2:#ff4080;
+      --gold:#ffd700;
+      --border:rgba(0,255,224,0.2);
+      --border2:rgba(0,255,224,0.5);
+      --glow:rgba(0,255,224,0.35);
+      --r:4px;
+      --r2:8px;
+      --c1:#00ffe0;
+      --c2:#ff2bd6;
+      --c3:#ffd700;
+      --c4:#7b2bff;
+      --c5:#00d4ff;
+      --c6:#ff6b00;
+    }
+
+    /* ═══════════════════════════════════════
+       UNIVERSAL 3D-ON-HOVER ICON SYSTEM
+    ═══════════════════════════════════════ */
+    .icon-3d{
+      perspective:300px;
+      display:inline-flex;align-items:center;justify-content:center;
+    }
+    .icon-3d .icon-inner{
+      display:inline-flex;align-items:center;justify-content:center;
+      transform-style:preserve-3d;
+      transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1), filter 0.3s;
+      will-change:transform;
+    }
+    .icon-3d:hover .icon-inner{
+      transform:rotateY(35deg) rotateX(18deg) scale(1.35) translateZ(14px);
+      filter:drop-shadow(0 6px 14px rgba(0,0,0,0.6)) brightness(1.25) saturate(1.4);
+    }
+    .icon-3d:hover{z-index:20}
+
+    html{scroll-behavior:smooth}
+
+    body{
+      font-family:'Rajdhani',sans-serif;
+      background:var(--void);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:flex-start;
+      padding:0 0 6rem;
+      overflow-x:hidden;
+    }
+
+    /* ═══════════════════════════════════════
+       SVG PATTERN BACKGROUND
+    ═══════════════════════════════════════ */
+    .bg-canvas{
+      position:fixed;inset:0;z-index:0;
+      background:var(--void);
+      overflow:hidden;
+    }
+    .bg-canvas svg{width:100%;height:100%}
+
+    /* scanlines overlay */
+    .scanlines{
+      position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:repeating-linear-gradient(
+        0deg,
+        transparent,transparent 2px,
+        rgba(0,255,224,0.015) 2px,rgba(0,255,224,0.015) 4px
+      );
+    }
+    /* vignette */
+    .vignette{
+      position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:radial-gradient(ellipse 90% 80% at 50% 50%,transparent 40%,rgba(0,5,8,0.85) 100%);
+    }
+
+    /* ═══════════════════════════════════════
+       MAIN WRAPPER
+    ═══════════════════════════════════════ */
+    .wrapper{
+      position:relative;z-index:10;
+      width:100%;max-width:900px;
+      padding:0 1rem;
+    }
+
+    /* ═══════════════════════════════════════
+       BOOT SEQUENCE HEADER
+    ═══════════════════════════════════════ */
+    .boot-header{
+      width:100%;
+      background:linear-gradient(135deg,var(--hull) 0%,var(--plate) 100%);
+      border-bottom:2px solid var(--neon);
+      padding:1rem 2rem;
+      display:flex;align-items:center;gap:16px;
+      box-shadow:0 0 30px rgba(0,255,224,0.2),inset 0 -1px 0 rgba(0,255,224,0.1);
+      margin-bottom:0;
+      position:relative;
+      animation:bootIn 0.6s ease both;
+    }
+    @keyframes bootIn{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
+
+    .unit-logo{
+      width:52px;height:52px;flex-shrink:0;
+      position:relative;
+    }
+    .unit-logo svg{width:100%;height:100%}
+
+    .boot-title{
+      flex:1;
+    }
+    .boot-title .sys-label{
+      font-family:'Share Tech Mono',monospace;
+      font-size:10px;color:var(--neon);
+      letter-spacing:0.2em;opacity:0.7;
+      animation:blink 2s step-end infinite;
+    }
+    @keyframes blink{0%,100%{opacity:0.7}50%{opacity:0.3}}
+    .boot-title h1{
+      font-family:'Orbitron',monospace;
+      font-size:clamp(18px,3vw,28px);
+      font-weight:900;letter-spacing:0.08em;
+      color:var(--neon);
+      text-shadow:0 0 20px var(--neon),0 0 40px rgba(0,255,224,0.4);
+      line-height:1.1;
+    }
+    .boot-title .sub{
+      font-family:'Share Tech Mono',monospace;
+      font-size:11px;color:var(--text3);
+      letter-spacing:0.12em;margin-top:2px;
+    }
+
+    .status-panel{
+      display:flex;flex-direction:column;gap:5px;align-items:flex-end;
+    }
+    .status-dot{
+      display:flex;align-items:center;gap:6px;
+      font-family:'Share Tech Mono',monospace;font-size:10px;
+      color:var(--text3);letter-spacing:0.08em;
+    }
+    .dot{
+      width:7px;height:7px;border-radius:50%;
+      animation:dotPulse 1.5s ease-in-out infinite;
+    }
+    .dot.green{background:var(--neon2);box-shadow:0 0 8px var(--neon2);}
+    .dot.blue {background:var(--neon3);box-shadow:0 0 8px var(--neon3);animation-delay:0.4s;}
+    .dot.warn {background:var(--warn2);box-shadow:0 0 8px var(--warn2);animation-delay:0.8s;}
+    @keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+
+    /* ═══════════════════════════════════════
+       HEX PROGRESS BAR (power meter)
+    ═══════════════════════════════════════ */
+    .power-bar{
+      width:100%;height:4px;
+      background:var(--hull);
+      position:relative;overflow:hidden;
+    }
+    .power-bar-fill{
+      height:100%;width:78%;
+      background:linear-gradient(90deg,var(--neon3),var(--neon),var(--neon2));
+      box-shadow:0 0 10px var(--neon);
+      animation:powerScan 3s ease-in-out infinite;
+    }
+    @keyframes powerScan{
+      0%{filter:brightness(1)}
+      50%{filter:brightness(1.5)}
+      100%{filter:brightness(1)}
+    }
+
+    /* ═══════════════════════════════════════
+       MAIN CARD — FULL 3D ON HOVER
+    ═══════════════════════════════════════ */
+    .scene{
+      perspective:1000px;
+      margin-top:24px;
+      animation:sceneIn 0.8s cubic-bezier(0.34,1.3,0.64,1) 0.2s both;
+    }
+    @keyframes sceneIn{
+      from{opacity:0;transform:translateY(50px) rotateX(15deg)}
+      to  {opacity:1;transform:translateY(0) rotateX(0)}
+    }
+
+    .mech-card{
+      background:
+        linear-gradient(160deg,rgba(7,31,46,0.98) 0%,rgba(4,21,32,0.99) 60%,rgba(2,12,20,1) 100%);
+      border:1px solid var(--border);
+      border-radius:var(--r2);
+      padding:0;
+      position:relative;
+      transform-style:preserve-3d;
+      transition:transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow:
+        0 0 0 1px rgba(0,255,224,0.08),
+        0 8px 40px rgba(0,0,0,0.8),
+        0 0 60px rgba(0,255,224,0.06),
+        inset 0 1px 0 rgba(0,255,224,0.05);
+      overflow:hidden;
+    }
+
+    /* circuit pattern inside card */
+    .mech-card .circuit-overlay{
+      position:absolute;inset:0;pointer-events:none;z-index:0;opacity:0.35;
+    }
+
+    /* corner accents */
+    .corner{
+      position:absolute;width:20px;height:20px;
+      z-index:2;pointer-events:none;
+    }
+    .corner svg{width:100%;height:100%}
+    .corner.tl{top:0;left:0}
+    .corner.tr{top:0;right:0;transform:scaleX(-1)}
+    .corner.bl{bottom:0;left:0;transform:scaleY(-1)}
+    .corner.br{bottom:0;right:0;transform:scale(-1)}
+
+    /* card content */
+    .card-inner{position:relative;z-index:5;padding:2rem 2.2rem;}
+
+    /* ═══════════════════════════════════════
+       ROBOT HEAD AVATAR
+    ═══════════════════════════════════════ */
+    .robot-avatar{
+      display:flex;justify-content:center;margin-bottom:1.5rem;
+      animation:avatarIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;
+    }
+    @keyframes avatarIn{from{opacity:0;transform:scale(0.4) rotateY(-90deg)}to{opacity:1;transform:scale(1) rotateY(0)}}
+
+    .robot-svg-wrap{
+      width:110px;height:110px;
+      position:relative;
+      filter:drop-shadow(0 0 20px rgba(0,255,224,0.6)) drop-shadow(0 0 40px rgba(0,255,224,0.3));
+      animation:robotHover 4s ease-in-out infinite;
+    }
+    @keyframes robotHover{
+      0%,100%{transform:translateY(0) rotate(0deg)}
+      25%{transform:translateY(-6px) rotate(-2deg)}
+      75%{transform:translateY(-3px) rotate(2deg)}
+    }
+
+    /* ═══════════════════════════════════════
+       SECTION TITLE
+    ═══════════════════════════════════════ */
+    .section-head{
+      text-align:center;margin-bottom:1.8rem;
+    }
+    .section-head .eyebrow{
+      font-family:'Share Tech Mono',monospace;
+      font-size:10px;letter-spacing:0.25em;
+      color:var(--neon);opacity:0.6;
+      text-transform:uppercase;margin-bottom:6px;
+    }
+    .section-head h2{
+      font-family:'Orbitron',monospace;
+      font-size:clamp(16px,2.5vw,22px);
+      font-weight:700;letter-spacing:0.06em;
+      color:var(--text);
+      text-shadow:0 0 15px rgba(0,255,224,0.3);
+    }
+    .section-head .tagline{
+      font-size:13px;color:var(--text3);
+      margin-top:4px;letter-spacing:0.05em;
+    }
+
+    /* ═══════════════════════════════════════
+       HUD STATS ROW
+    ═══════════════════════════════════════ */
+    .hud-row{
+      display:flex;gap:8px;flex-wrap:wrap;
+      margin-bottom:1.6rem;
+    }
+    .hud-chip{
+      display:flex;align-items:center;gap:6px;
+      padding:5px 12px;
+      background:rgba(0,255,224,0.05);
+      border:1px solid rgba(0,255,224,0.15);
+      border-radius:2px;
+      font-family:'Share Tech Mono',monospace;
+      font-size:11px;color:var(--text2);
+      letter-spacing:0.06em;
+      position:relative;overflow:hidden;
+      transition:all 0.2s;
+      clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+      --chip-c:var(--c1);
+    }
+    .hud-chip:nth-child(1){--chip-c:var(--c1)}
+    .hud-chip:nth-child(2){--chip-c:var(--c2)}
+    .hud-chip:nth-child(3){--chip-c:var(--c5)}
+    .hud-chip:nth-child(4){--chip-c:var(--c4)}
+    .hud-chip:nth-child(5){--chip-c:var(--c3)}
+    .hud-chip{border-color:color-mix(in srgb,var(--chip-c) 35%,transparent)}
+    .hud-chip:hover{
+      background:color-mix(in srgb,var(--chip-c) 16%,transparent);
+      border-color:var(--chip-c);
+      color:var(--chip-c);
+      box-shadow:0 0 14px color-mix(in srgb,var(--chip-c) 55%,transparent);
+      transform:translateY(-2px);
+    }
+    .hud-chip::before{
+      content:'';position:absolute;left:-100%;top:0;width:50%;height:100%;
+      background:linear-gradient(90deg,transparent,rgba(0,255,224,0.08),transparent);
+      animation:chipScan 3s ease-in-out infinite;
+    }
+    @keyframes chipScan{0%{left:-100%}100%{left:200%}}
+
+    /* ═══════════════════════════════════════
+       LANGUAGE SELECTORS
+    ═══════════════════════════════════════ */
+    .lang-row{
+      display:grid;grid-template-columns:1fr 52px 1fr;
+      align-items:end;gap:12px;margin-bottom:1.6rem;
+    }
+    .lang-col label{
+      display:flex;align-items:center;gap:6px;
+      font-family:'Share Tech Mono',monospace;
+      font-size:10px;font-weight:400;letter-spacing:0.18em;
+      text-transform:uppercase;color:var(--neon);
+      margin-bottom:7px;opacity:0.75;
+    }
+
+    select{
+      width:100%;height:42px;
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      background:var(--plate);color:var(--text);
+      font-family:'Rajdhani',sans-serif;
+      font-size:14px;font-weight:500;
+      padding:0 32px 0 12px;
+      outline:none;cursor:pointer;appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2300ffe0' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 10px center;
+      transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;
+      clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+    }
+    select:focus{
+      border-color:var(--neon);
+      box-shadow:0 0 0 2px rgba(0,255,224,0.15),0 0 20px rgba(0,255,224,0.15);
+      transform:translateY(-1px);
+    }
+    select option{background:#041520}
+
+    .swap-btn{
+      width:46px;height:46px;border-radius:50%;
+      border:1px solid var(--border2);
+      background:radial-gradient(circle,var(--plate),var(--hull));
+      color:var(--neon);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-size:18px;flex-shrink:0;
+      transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.2s;
+      box-shadow:0 0 12px rgba(0,255,224,0.2),inset 0 0 8px rgba(0,255,224,0.05);
+      position:relative;
+    }
+    .swap-btn::before{
+      content:'';position:absolute;inset:3px;border-radius:50%;
+      border:1px solid rgba(0,255,224,0.15);
+      animation:spinRing 6s linear infinite;
+    }
+    @keyframes spinRing{to{transform:rotate(360deg)}}
+    .swap-btn:hover{
+      transform:rotate(180deg) scale(1.15);
+      box-shadow:0 0 25px rgba(0,255,224,0.5);
+    }
+
+    /* ═══════════════════════════════════════
+       TEXT AREAS
+    ═══════════════════════════════════════ */
+    .text-row{
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:16px;margin-bottom:1.5rem;
+    }
+    .text-col-label{
+      display:flex;justify-content:space-between;align-items:center;
+      font-family:'Share Tech Mono',monospace;
+      font-size:10px;letter-spacing:0.15em;
+      text-transform:uppercase;color:var(--neon);
+      opacity:0.7;margin-bottom:7px;
+    }
+    .char-count{font-size:10px;color:var(--text3)}
+    .detected-tag{font-size:10px;color:var(--neon2);font-style:normal;letter-spacing:0.08em}
+
+    textarea{
+      width:100%;min-height:155px;resize:vertical;
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      background:var(--plate);color:var(--text);
+      font-family:'Rajdhani',sans-serif;
+      font-size:14px;font-weight:500;line-height:1.7;
+      padding:12px 14px;outline:none;
+      transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;
+      clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+    }
+    textarea:focus{
+      border-color:var(--neon);
+      box-shadow:0 0 0 2px rgba(0,255,224,0.12),0 0 25px rgba(0,255,224,0.1);
+      transform:translateY(-1px);
+    }
+    textarea::placeholder{color:var(--text3);font-style:italic}
+
+    .output-box{
+      min-height:155px;
+      background:linear-gradient(160deg,var(--plate) 0%,rgba(4,21,32,0.9) 100%);
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      padding:12px 14px;
+      font-family:'Rajdhani',sans-serif;
+      font-size:14px;font-weight:500;line-height:1.7;
+      color:var(--text);
+      white-space:pre-wrap;word-break:break-word;
+      position:relative;overflow:hidden;
+      transition:border-color 0.3s,box-shadow 0.3s;
+      clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+    }
+    .output-box.has-content{
+      border-color:rgba(0,255,224,0.4);
+      box-shadow:0 0 20px rgba(0,255,224,0.1);
+    }
+    .output-box.loading::after{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(90deg,transparent,rgba(0,255,224,0.06),transparent);
+      background-size:200% 100%;
+      animation:roboscan 1s linear infinite;
+    }
+    @keyframes roboscan{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    .output-placeholder{color:var(--text3);font-style:italic}
+
+    /* ═══════════════════════════════════════
+       ACTION BUTTONS
+    ═══════════════════════════════════════ */
+    .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1.5rem;}
+
+    .btn-primary{
+      display:inline-flex;align-items:center;gap:8px;
+      height:42px;padding:0 22px;
+      background:transparent;
+      color:var(--void);
+      border:none;border-radius:var(--r);
+      font-family:'Orbitron',monospace;
+      font-size:12px;font-weight:700;letter-spacing:0.1em;
+      cursor:pointer;position:relative;overflow:hidden;
+      clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+      transition:transform 0.15s,box-shadow 0.2s;
+    }
+    .btn-primary::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(90deg,var(--neon2),var(--neon),var(--neon3));
+      background-size:200% 100%;
+      animation:btnGrad 2s linear infinite;
+      z-index:0;
+    }
+    @keyframes btnGrad{0%{background-position:0%}100%{background-position:200%}}
+    .btn-primary span,.btn-primary i{position:relative;z-index:1;color:var(--void)}
+    .btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 0 30px rgba(0,255,224,0.5);}
+    .btn-primary:active{transform:scale(0.97)}
+    .btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+    .btn-sec{
+      display:inline-flex;align-items:center;gap:7px;
+      height:42px;padding:0 16px;
+      background:transparent;
+      color:var(--text2);
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      font-family:'Share Tech Mono',monospace;
+      font-size:12px;letter-spacing:0.08em;
+      cursor:pointer;
+      clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+      transition:background 0.15s,border-color 0.15s,transform 0.15s,box-shadow 0.15s,color 0.15s;
+    }
+    .btn-sec:hover{
+      background:rgba(0,255,224,0.08);
+      border-color:var(--neon);color:var(--neon);
+      transform:translateY(-1px);
+      box-shadow:0 0 12px rgba(0,255,224,0.2);
+    }
+    .btn-sec:disabled{opacity:0.35;cursor:not-allowed;transform:none}
+
+    .status{
+      margin-left:auto;
+      font-family:'Share Tech Mono',monospace;
+      font-size:11px;font-weight:400;
+      letter-spacing:0.08em;
+      transition:color 0.3s;
+    }
+    .status.success{color:var(--neon2)}
+    .status.error{color:var(--danger2)}
+    .status.warn{color:var(--warn2)}
+
+    /* dots */
+    .dots span{animation:blink2 1.3s infinite;display:inline-block}
+    .dots span:nth-child(2){animation-delay:0.2s}
+    .dots span:nth-child(3){animation-delay:0.4s}
+    @keyframes blink2{0%,80%,100%{opacity:0.1}40%{opacity:1}}
+
+    /* ═══════════════════════════════════════
+       GAME POWER METER FOOTER
+    ═══════════════════════════════════════ */
+    .game-footer{
+      border-top:1px solid var(--border);
+      margin-top:1.5rem;
+      padding-top:1.2rem;
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .stats-grid{
+      display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
+    }
+    .stat-block{
+      background:rgba(0,255,224,0.03);
+      border:1px solid rgba(0,255,224,0.1);
+      border-radius:var(--r);padding:8px 10px;
+      position:relative;overflow:hidden;
+      --sc:var(--c1);
+    }
+    .stat-block:nth-child(1){--sc:var(--c5)}
+    .stat-block:nth-child(2){--sc:var(--c3)}
+    .stat-block:nth-child(3){--sc:var(--c2)}
+    .stat-block::after{
+      content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--sc),var(--c1));
+      transform:scaleX(var(--fill,0.7));transform-origin:left;
+      transition:transform 0.5s;
+    }
+    .stat-block .stat-val{color:var(--sc)}
+    .stat-block .stat-label{
+      font-family:'Share Tech Mono',monospace;
+      font-size:9px;color:var(--text3);letter-spacing:0.15em;margin-bottom:2px;
+    }
+    .stat-block .stat-val{
+      font-family:'Orbitron',monospace;
+      font-size:14px;font-weight:700;
+    }
+
+    .footer-line{
+      display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+      font-family:'Share Tech Mono',monospace;
+      font-size:10px;color:var(--text3);letter-spacing:0.1em;
+    }
+    .footer-sep{color:var(--neon);opacity:0.4}
+
+    /* ═══════════════════════════════════════
+       HOVER 3D TILT
+    ═══════════════════════════════════════ */
+    .mech-card.is-tilting{
+      box-shadow:
+        0 0 0 1px rgba(0,255,224,0.15),
+        0 20px 60px rgba(0,0,0,0.9),
+        0 0 100px rgba(0,255,224,0.15),
+        inset 0 1px 0 rgba(0,255,224,0.08);
+    }
+
+    /* ═══════════════════════════════════════
+       SUCCESS POP
+    ═══════════════════════════════════════ */
+    @keyframes mechPop{
+      0%{transform:scale(1)}
+      30%{transform:scale(1.02);box-shadow:0 0 0 3px var(--neon2),0 0 30px rgba(0,255,160,0.3)}
+      100%{transform:scale(1)}
+    }
+    .output-box.pop{animation:mechPop 0.4s ease}
+
+    /* ═══════════════════════════════════════
+       BOTTOM GAME BAR
+    ═══════════════════════════════════════ */
+    .game-bar{
+      position:fixed;bottom:0;left:0;right:0;
+      background:rgba(1,13,20,0.95);
+      border-top:1px solid var(--border);
+      backdrop-filter:blur(12px);
+      padding:10px 24px;
+      display:flex;align-items:center;justify-content:space-between;
+      gap:12px;flex-wrap:wrap;
+      z-index:100;
+      box-shadow:0 -4px 30px rgba(0,255,224,0.08);
+    }
+    .game-bar-left{
+      display:flex;align-items:center;gap:12px;
+    }
+    .xp-block{
+      display:flex;flex-direction:column;gap:4px;
+    }
+    .xp-label{
+      font-family:'Share Tech Mono',monospace;
+      font-size:9px;color:var(--text3);letter-spacing:0.15em;
+    }
+    .xp-bar{
+      width:120px;height:6px;
+      background:var(--hull);border-radius:3px;overflow:hidden;
+      border:1px solid rgba(0,255,224,0.1);
+    }
+    .xp-fill{
+      height:100%;width:42%;
+      background:linear-gradient(90deg,var(--neon3),var(--neon));
+      border-radius:3px;
+      box-shadow:0 0 6px var(--neon);
+      transition:width 0.6s ease;
+    }
+    .player-info{
+      display:flex;align-items:center;gap:8px;
+    }
+    .player-icon{
+      width:32px;height:32px;border-radius:50%;
+      background:radial-gradient(circle,var(--plate),var(--hull));
+      border:1px solid var(--border2);
+      display:flex;align-items:center;justify-content:center;
+      font-size:16px;
+      box-shadow:0 0 10px rgba(0,255,224,0.2);
+    }
+    .player-name{
+      font-family:'Orbitron',monospace;
+      font-size:11px;font-weight:700;color:var(--text2);
+    }
+    .player-level{
+      font-family:'Share Tech Mono',monospace;
+      font-size:9px;color:var(--text3);letter-spacing:0.1em;
+    }
+    .game-bar-right{
+      display:flex;align-items:center;gap:10px;
+    }
+    .score-block{
+      font-family:'Orbitron',monospace;
+      font-size:13px;font-weight:700;color:var(--gold);
+      text-shadow:0 0 10px rgba(255,215,0,0.4);
+    }
+    .score-label{
+      font-family:'Share Tech Mono',monospace;
+      font-size:9px;color:var(--text3);letter-spacing:0.1em;
+    }
+    .combo-pill{
+      padding:4px 10px;
+      background:rgba(255,107,0,0.1);
+      border:1px solid rgba(255,107,0,0.4);
+      border-radius:2px;
+      font-family:'Orbitron',monospace;
+      font-size:10px;color:var(--warn2);
+      letter-spacing:0.06em;
+      animation:comboPulse 1s ease-in-out infinite;
+      clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+    }
+    @keyframes comboPulse{0%,100%{opacity:1}50%{opacity:0.6}}
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+
+    /* ═══════════════════════════════════════
+       LOGIN / REGISTER TERMINAL
+    ═══════════════════════════════════════ */
+    .login-wrap{
+      position:relative;z-index:10;width:100%;
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:1rem;
+    }
+    .term{
+      position:relative;z-index:5;width:100%;max-width:420px;
+      background:linear-gradient(160deg,rgba(7,31,46,0.98) 0%,rgba(4,21,32,0.99) 60%,rgba(2,12,20,1) 100%);
+      border:1px solid var(--border);border-radius:var(--r2);
+      box-shadow:0 0 0 1px rgba(0,255,224,0.08),0 8px 40px rgba(0,0,0,0.8),0 0 60px rgba(0,255,224,0.06);
+      overflow:hidden;animation:sceneIn .6s cubic-bezier(0.34,1.3,0.64,1) both;
+    }
+    .term-head{
+      padding:1.2rem 1.6rem;border-bottom:2px solid var(--neon);
+      background:linear-gradient(135deg,var(--hull) 0%,var(--plate) 100%);
+      display:flex;align-items:center;gap:12px;
+    }
+    .term-head .glyph{font-size:30px}
+    .term-head h1{font-family:'Orbitron',monospace;font-size:18px;letter-spacing:.06em;color:var(--neon);text-shadow:0 0 16px var(--neon)}
+    .term-head .sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em;margin-top:2px}
+    .tabs{display:flex}
+    .tab{
+      flex:1;text-align:center;padding:12px;cursor:pointer;
+      font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.12em;
+      color:var(--text3);border-bottom:2px solid var(--border);transition:.2s;
+    }
+    .tab.active{color:var(--neon);border-color:var(--neon);text-shadow:0 0 8px var(--neon)}
+    .login-panel{padding:1.6rem}
+    .field{margin-bottom:1rem}
+    .field label{
+      display:block;font-family:'Share Tech Mono',monospace;font-size:10px;
+      color:var(--text2);letter-spacing:.1em;margin-bottom:6px;
+    }
+    .field input{
+      width:100%;padding:11px 12px;background:var(--hull);color:var(--text);
+      border:1px solid var(--border);border-radius:var(--r);font-family:'Share Tech Mono',monospace;
+      font-size:13px;outline:none;transition:.2s;
+    }
+    .field input:focus{border-color:var(--border2);box-shadow:0 0 12px rgba(0,255,224,0.2)}
+    .term .btn{
+      width:100%;padding:13px;margin-top:6px;background:linear-gradient(135deg,var(--neon2),var(--neon));
+      color:#021018;border:none;border-radius:var(--r);font-family:'Orbitron',monospace;font-weight:700;
+      font-size:13px;letter-spacing:.08em;cursor:pointer;transition:.2s;
+    }
+    .term .btn:hover{filter:brightness(1.15);box-shadow:0 0 20px var(--neon)}
+    .term .btn:disabled{opacity:.5;cursor:not-allowed}
+    .term-msg{
+      margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:11px;
+      letter-spacing:.06em;min-height:16px;text-align:center;
+    }
+    .term-msg.err{color:var(--danger)}
+    .term-msg.ok{color:var(--neon2)}
+    .term-foot{padding:10px 1.6rem 1.4rem;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);text-align:center;letter-spacing:.08em}
+    .hidden{display:none !important}
+
+    /* ═══════════════════════════════════════
+       MODE TABS (Translate / Tutorial / Quiz)
+    ═══════════════════════════════════════ */
+    .mode-tabs{
+      display:flex;gap:8px;margin-bottom:1.6rem;flex-wrap:wrap;
+    }
+    .mode-tab{
+      flex:1;min-width:120px;
+      display:flex;align-items:center;justify-content:center;gap:7px;
+      height:40px;padding:0 14px;
+      background:rgba(0,255,224,0.03);
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      color:var(--text2);
+      font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:0.06em;
+      cursor:pointer;transition:.2s;
+      clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+    }
+    .mode-tab:hover{background:rgba(0,255,224,0.08);border-color:var(--border2);color:var(--neon)}
+    .mode-tab.active{
+      background:linear-gradient(135deg,rgba(0,255,160,0.15),rgba(0,255,224,0.15));
+      border-color:var(--neon);color:var(--neon);
+      box-shadow:0 0 16px rgba(0,255,224,0.25);
+    }
+    .mode-panel{animation:sceneIn 0.4s ease both}
+
+    /* ═══════════════════════════════════════
+       QUIZ QUESTIONS
+    ═══════════════════════════════════════ */
+    .quiz-card{
+      background:linear-gradient(160deg,var(--plate) 0%,rgba(4,21,32,0.9) 100%);
+      border:1px solid var(--border);border-radius:var(--r);
+      padding:14px 16px;margin-bottom:12px;
+      clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+    }
+    .quiz-q{
+      font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;
+      color:var(--text);margin-bottom:10px;line-height:1.5;
+    }
+    .quiz-q-num{
+      font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--neon);
+      letter-spacing:.1em;margin-right:6px;opacity:0.7;
+    }
+    .quiz-opts{display:flex;flex-direction:column;gap:8px}
+    .quiz-opt{
+      display:flex;align-items:center;gap:10px;
+      padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);
+      cursor:pointer;font-size:13px;color:var(--text2);
+      transition:.15s;background:rgba(0,255,224,0.02);
+    }
+    .quiz-opt:hover{border-color:var(--border2);background:rgba(0,255,224,0.06)}
+    .quiz-opt.selected{border-color:var(--neon);color:var(--neon);background:rgba(0,255,224,0.1)}
+    .quiz-opt.correct{border-color:var(--neon2);color:var(--neon2);background:rgba(0,255,160,0.12)}
+    .quiz-opt.incorrect{border-color:var(--danger);color:var(--danger2);background:rgba(255,32,96,0.1)}
+    .quiz-opt input{accent-color:var(--neon)}
+    .quiz-score{
+      text-align:center;padding:18px;font-family:'Orbitron',monospace;
+      font-size:20px;font-weight:800;color:var(--gold);
+      text-shadow:0 0 16px rgba(255,215,0,0.4);
+      animation:sceneIn 0.5s ease both;
+    }
+    .quiz-score .sub{
+      display:block;margin-top:6px;font-family:'Share Tech Mono',monospace;
+      font-size:11px;color:var(--text3);letter-spacing:.08em;font-weight:400;text-shadow:none;
+    }
+
+    .video-card{
+      background:linear-gradient(160deg,var(--plate) 0%,rgba(4,21,32,0.9) 100%);
+      border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+      text-decoration:none;display:block;transition:.2s;
+      clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+    }
+    .video-card:hover{border-color:var(--border2);box-shadow:0 0 16px rgba(0,255,224,0.15);transform:translateY(-2px)}
+    .video-card .thumb-wrap{position:relative;aspect-ratio:16/9;background:var(--hull);overflow:hidden}
+    .video-card .thumb-wrap img{width:100%;height:100%;object-fit:cover}
+    .video-card .play-badge{
+      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      background:rgba(0,5,8,0.25);
+    }
+    .video-card .play-badge span{
+      width:34px;height:34px;border-radius:50%;background:rgba(0,255,224,0.85);
+      color:var(--void);display:flex;align-items:center;justify-content:center;font-size:14px;
+    }
+    .video-card .vc-title{
+      padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;
+      color:var(--text2);line-height:1.3;
+    }
+    .video-card .vc-src{
+      padding:0 10px 8px;font-family:'Share Tech Mono',monospace;font-size:9px;
+      color:var(--text3);letter-spacing:.06em;
+    }
+
+    @media(max-width:600px){
+      .mode-tab{min-width:90px;font-size:10px}
+      .card-inner{padding:1.4rem 1.2rem}
+      .text-row{grid-template-columns:1fr}
+      .lang-row{grid-template-columns:1fr 44px 1fr;gap:8px}
+      .stats-grid{grid-template-columns:1fr 1fr}
+      .boot-header{padding:1rem}
+      .game-bar{padding:8px 14px}
+      .xp-bar{width:80px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ ANIMATED SVG BACKGROUND ═══ -->
+<div class="bg-canvas">
+  <svg viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- hex pattern -->
+      <pattern id="hex" x="0" y="0" width="60" height="52" patternUnits="userSpaceOnUse">
+        <polygon points="30,2 58,17 58,47 30,62 2,47 2,17" fill="none" stroke="rgba(0,255,224,0.13)" stroke-width="0.9"/>
+      </pattern>
+      <!-- circuit board micro pattern -->
+      <pattern id="circuit" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+        <rect width="80" height="80" fill="none"/>
+        <line x1="0" y1="40" x2="25" y2="40" stroke="rgba(255,43,214,0.1)" stroke-width="0.9"/>
+        <line x1="25" y1="40" x2="25" y2="20" stroke="rgba(255,43,214,0.1)" stroke-width="0.9"/>
+        <line x1="25" y1="20" x2="55" y2="20" stroke="rgba(0,255,224,0.1)" stroke-width="0.9"/>
+        <circle cx="55" cy="20" r="2" fill="rgba(255,215,0,0.2)"/>
+        <line x1="55" y1="20" x2="55" y2="60" stroke="rgba(0,255,224,0.1)" stroke-width="0.9"/>
+        <line x1="55" y1="60" x2="80" y2="60" stroke="rgba(123,43,255,0.1)" stroke-width="0.9"/>
+        <circle cx="25" cy="40" r="1.6" fill="rgba(0,255,224,0.18)"/>
+        <line x1="40" y1="0" x2="40" y2="15" stroke="rgba(0,210,255,0.1)" stroke-width="0.9"/>
+        <circle cx="40" cy="15" r="2" fill="rgba(0,210,255,0.18)"/>
+        <line x1="10" y1="65" x2="35" y2="65" stroke="rgba(0,255,160,0.1)" stroke-width="0.9"/>
+        <circle cx="10" cy="65" r="1.6" fill="rgba(255,107,0,0.18)"/>
+      </pattern>
+      <!-- grid lines -->
+      <pattern id="grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0,255,224,0.035)" stroke-width="0.5"/>
+      </pattern>
+      <!-- glow filter -->
+      <filter id="neonGlow">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="softGlow">
+        <feGaussianBlur stdDeviation="8" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- base -->
+    <rect width="1400" height="900" fill="#000508"/>
+
+    <!-- patterns layered -->
+    <rect width="1400" height="900" fill="url(#grid)"/>
+    <rect width="1400" height="900" fill="url(#hex)" opacity="0.7"/>
+    <rect width="1400" height="900" fill="url(#circuit)"/>
+
+    <!-- animated neon lines — horizontal -->
+    <line x1="-200" y1="180" x2="1600" y2="180" stroke="rgba(0,255,224,0.08)" stroke-width="1">
+      <animate attributeName="y1" values="180;182;178;180" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="180;182;178;180" dur="6s" repeatCount="indefinite"/>
+    </line>
+    <line x1="-200" y1="600" x2="1600" y2="600" stroke="rgba(0,210,255,0.06)" stroke-width="0.8">
+      <animate attributeName="y1" values="600;598;602;600" dur="8s" repeatCount="indefinite"/>
+    </line>
+    <line x1="-200" y1="750" x2="1600" y2="750" stroke="rgba(0,255,160,0.05)" stroke-width="0.6"/>
+
+    <!-- vertical accent lines -->
+    <line x1="120" y1="0" x2="120" y2="900" stroke="rgba(0,255,224,0.05)" stroke-width="0.8"/>
+    <line x1="1280" y1="0" x2="1280" y2="900" stroke="rgba(0,255,224,0.05)" stroke-width="0.8"/>
+
+    <!-- moving scan line -->
+    <rect x="0" y="0" width="1400" height="2" fill="rgba(0,255,224,0.12)" filter="url(#softGlow)">
+      <animate attributeName="y" values="-5;905;-5" dur="5s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- large hex outlines BG -->
+    <polygon points="100,50 200,5 300,50 300,140 200,185 100,140" fill="none" stroke="rgba(0,255,224,0.06)" stroke-width="1.5"/>
+    <polygon points="1100,200 1200,155 1300,200 1300,290 1200,335 1100,290" fill="none" stroke="rgba(0,210,255,0.05)" stroke-width="1.5"/>
+    <polygon points="50,650 150,605 250,650 250,740 150,785 50,740" fill="none" stroke="rgba(0,255,160,0.05)" stroke-width="1"/>
+    <polygon points="1150,600 1250,555 1350,600 1350,690 1250,735 1150,690" fill="none" stroke="rgba(0,255,224,0.04)" stroke-width="1"/>
+
+    <!-- corner circuit details -->
+    <g filter="url(#neonGlow)" opacity="0.5">
+      <polyline points="0,0 80,0 80,20 40,20 40,60" fill="none" stroke="rgba(0,255,224,0.4)" stroke-width="1.2"/>
+      <circle cx="40" cy="60" r="3" fill="rgba(0,255,224,0.5)"/>
+      <polyline points="1400,0 1320,0 1320,20 1360,20 1360,60" fill="none" stroke="rgba(0,210,255,0.4)" stroke-width="1.2"/>
+      <polyline points="0,900 80,900 80,880 40,880 40,840" fill="none" stroke="rgba(0,255,160,0.4)" stroke-width="1.2"/>
+      <polyline points="1400,900 1320,900 1320,880 1360,880 1360,840" fill="none" stroke="rgba(0,255,224,0.3)" stroke-width="1.2"/>
+    </g>
+
+    <!-- floating nodes -->
+    <g filter="url(#neonGlow)">
+      <circle cx="200" cy="300" r="3" fill="rgba(0,255,224,0.5)"><animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/></circle>
+      <circle cx="1200" cy="400" r="2.5" fill="rgba(0,210,255,0.5)"><animate attributeName="opacity" values="0.3;0.9;0.3" dur="3.2s" repeatCount="indefinite"/></circle>
+      <circle cx="700" cy="100" r="2" fill="rgba(0,255,160,0.6)"><animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite"/></circle>
+      <circle cx="400" cy="750" r="3" fill="rgba(0,255,224,0.4)"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="4s" repeatCount="indefinite"/></circle>
+      <circle cx="1050" cy="700" r="2.5" fill="rgba(255,107,0,0.4)"><animate attributeName="opacity" values="0.2;0.7;0.2" dur="2s" repeatCount="indefinite"/></circle>
+    </g>
+
+    <!-- diagonal speed lines (anime style) -->
+    <g opacity="0.04">
+      <line x1="0" y1="900" x2="400" y2="0" stroke="#00ffe0" stroke-width="1"/>
+      <line x1="200" y1="900" x2="600" y2="0" stroke="#00ffe0" stroke-width="0.6"/>
+      <line x1="1000" y1="900" x2="1400" y2="0" stroke="#00d4ff" stroke-width="1"/>
+      <line x1="800" y1="900" x2="1200" y2="0" stroke="#00d4ff" stroke-width="0.6"/>
+    </g>
+  </svg>
+</div>
+
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<!-- ═══ LOGIN / REGISTER SCREEN ═══ -->
+<div class="login-wrap" id="loginScreen">
+  <div class="term">
+    <div class="term-head">
+      <div class="glyph icon-3d"><span class="icon-inner">🤖</span></div>
+      <div>
+        <h1>UNIT-7 ACCESS TERMINAL</h1>
+        <div class="sub">REGISTRATION REQUIRED</div>
+      </div>
+    </div>
+
+    <div class="login-panel" id="registerPanelBox">
+      <div class="field">
+        <label>CHOOSE OPERATOR ID</label>
+        <input type="text" id="regUser" placeholder="username" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>SET ACCESS CODE</label>
+        <input type="password" id="regPass" placeholder="min. 6 characters" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label>CONFIRM ACCESS CODE</label>
+        <input type="password" id="regPass2" placeholder="repeat password" autocomplete="new-password">
+      </div>
+      <button class="btn" id="registerBtn">⚙ REGISTER UNIT</button>
+      <div class="term-msg" id="registerMsg"></div>
+    </div>
+
+    <div class="term-foot">SYS // ROBO-TRANSLATE GAME NETWORK · LOCAL ENCRYPTED SESSION</div>
+  </div>
+</div>
+
+<!-- ═══ BOOT HEADER ═══ -->
+<div id="gameScreen" style="display:none">
+<div class="boot-header" style="width:100%;max-width:900px;margin:0 auto;border-radius:0;">
+  <!-- Unit logo SVG -->
+  <div class="unit-logo icon-3d"><div class="icon-inner">    <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- robot head simplified -->
+      <rect x="10" y="14" width="32" height="26" rx="2" fill="none" stroke="#00ffe0" stroke-width="1.5"/>
+      <rect x="16" y="20" width="8" height="6" rx="1" fill="#00ffe0" opacity="0.8">
+        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="28" y="20" width="8" height="6" rx="1" fill="#00d4ff" opacity="0.8">
+        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" begin="0.3s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="18" y="32" width="16" height="3" rx="1" fill="#00ffa0" opacity="0.7"/>
+      <!-- antenna -->
+      <line x1="26" y1="14" x2="26" y2="6" stroke="#00ffe0" stroke-width="1.5"/>
+      <circle cx="26" cy="5" r="2" fill="#00ffe0">
+        <animate attributeName="opacity" values="1;0.2;1" dur="0.8s" repeatCount="indefinite"/>
+      </circle>
+      <!-- ears -->
+      <rect x="6" y="22" width="4" height="8" rx="1" fill="none" stroke="#00ffe0" stroke-width="1"/>
+      <rect x="42" y="22" width="4" height="8" rx="1" fill="none" stroke="#00ffe0" stroke-width="1"/>
+      <!-- neck -->
+      <rect x="20" y="40" width="12" height="5" rx="1" fill="none" stroke="#00d4ff" stroke-width="1"/>
+    </svg>
+  </div></div>
+  <div class="boot-title">
+    <div class="sys-label">// SYSTEM ONLINE — UNIT-7 ACTIVATED</div>
+    <h1>ROBO-TRANSLATE</h1>
+    <div class="sub">NEURAL LANG MODULE v4.7.1 // 25 DIALECTS LOADED</div>
+  </div>
+  <div class="status-panel">
+    <div class="status-dot"><span class="dot green"></span>NEURAL CORE</div>
+    <div class="status-dot"><span class="dot blue"></span>LANG ENGINE</div>
+    <div class="status-dot"><span class="dot warn"></span>SYNC ACTIVE</div>
+  </div>
+</div>
+<div class="power-bar" style="width:100%;max-width:900px;margin:0 auto;"><div class="power-bar-fill"></div></div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="wrapper">
+  <div class="scene">
+    <div class="mech-card" id="mechCard">
+
+      <!-- circuit overlay inside card -->
+      <svg class="circuit-overlay" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="cp" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="40" x2="25" y2="40" stroke="rgba(0,255,224,0.06)" stroke-width="1"/>
+            <line x1="25" y1="40" x2="25" y2="20" stroke="rgba(0,255,224,0.06)" stroke-width="1"/>
+            <line x1="25" y1="20" x2="55" y2="20" stroke="rgba(0,255,224,0.06)" stroke-width="1"/>
+            <circle cx="55" cy="20" r="2" fill="rgba(0,255,224,0.15)"/>
+            <line x1="55" y1="20" x2="55" y2="60" stroke="rgba(0,255,224,0.06)" stroke-width="1"/>
+            <line x1="55" y1="60" x2="80" y2="60" stroke="rgba(0,255,224,0.06)" stroke-width="1"/>
+            <circle cx="25" cy="40" r="1.5" fill="rgba(0,255,224,0.12)"/>
+          </pattern>
+        </defs>
+        <rect width="900" height="600" fill="url(#cp)"/>
+        <!-- scan line inside card -->
+        <rect x="0" y="0" width="900" height="1.5" fill="rgba(0,255,224,0.08)">
+          <animate attributeName="y" values="-2;602;-2" dur="4s" repeatCount="indefinite"/>
+        </rect>
+      </svg>
+
+      <!-- corners -->
+      <div class="corner tl"><svg viewBox="0 0 20 20"><polyline points="0,20 0,0 20,0" fill="none" stroke="#00ffe0" stroke-width="2"/><circle cx="0" cy="0" r="2" fill="#00ffe0"/></svg></div>
+      <div class="corner tr"><svg viewBox="0 0 20 20"><polyline points="0,20 0,0 20,0" fill="none" stroke="#00d4ff" stroke-width="2"/><circle cx="0" cy="0" r="2" fill="#00d4ff"/></svg></div>
+      <div class="corner bl"><svg viewBox="0 0 20 20"><polyline points="0,20 0,0 20,0" fill="none" stroke="#00ffa0" stroke-width="2"/><circle cx="0" cy="0" r="2" fill="#00ffa0"/></svg></div>
+      <div class="corner br"><svg viewBox="0 0 20 20"><polyline points="0,20 0,0 20,0" fill="none" stroke="#00ffe0" stroke-width="2"/><circle cx="0" cy="0" r="2" fill="#00ffe0"/></svg></div>
+
+      <div class="card-inner">
+
+        <!-- Robot avatar -->
+        <div class="robot-avatar">
+          <div class="robot-svg-wrap">
+            <svg viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- body -->
+              <rect x="28" y="58" width="54" height="36" rx="4" fill="none" stroke="#00ffe0" stroke-width="1.8"/>
+              <!-- chest panel -->
+              <rect x="36" y="66" width="16" height="12" rx="2" fill="rgba(0,255,224,0.08)" stroke="#00ffa0" stroke-width="1"/>
+              <rect x="58" y="66" width="16" height="12" rx="2" fill="rgba(0,210,255,0.08)" stroke="#00d4ff" stroke-width="1"/>
+              <!-- core light -->
+              <rect x="44" y="82" width="22" height="6" rx="3" fill="none" stroke="#00ffe0" stroke-width="1">
+                <animate attributeName="stroke" values="#00ffe0;#00ffa0;#00d4ff;#00ffe0" dur="2s" repeatCount="indefinite"/>
+              </rect>
+              <rect x="47" y="84" width="16" height="2" rx="1" fill="#00ffe0" opacity="0.6">
+                <animate attributeName="width" values="16;8;16" dur="1.5s" repeatCount="indefinite"/>
+              </rect>
+              <!-- head -->
+              <rect x="30" y="26" width="50" height="34" rx="5" fill="none" stroke="#00ffe0" stroke-width="1.8"/>
+              <!-- eyes -->
+              <rect x="38" y="35" width="12" height="8" rx="2" fill="rgba(0,255,224,0.15)" stroke="#00ffe0" stroke-width="1.2">
+                <animate attributeName="height" values="8;2;8" dur="3s" keyTimes="0;0.5;1" repeatCount="indefinite"/>
+                <animate attributeName="y" values="35;38;35" dur="3s" keyTimes="0;0.5;1" repeatCount="indefinite"/>
+              </rect>
+              <rect x="60" y="35" width="12" height="8" rx="2" fill="rgba(0,210,255,0.15)" stroke="#00d4ff" stroke-width="1.2">
+                <animate attributeName="height" values="8;2;8" dur="3s" keyTimes="0;0.5;1" repeatCount="indefinite" begin="0.1s"/>
+                <animate attributeName="y" values="35;38;35" dur="3s" keyTimes="0;0.5;1" repeatCount="indefinite" begin="0.1s"/>
+              </rect>
+              <!-- eye glow pupils -->
+              <rect x="42" y="37" width="4" height="4" rx="1" fill="#00ffe0" opacity="0.9">
+                <animate attributeName="x" values="42;44;42;40;42" dur="4s" repeatCount="indefinite"/>
+              </rect>
+              <rect x="64" y="37" width="4" height="4" rx="1" fill="#00d4ff" opacity="0.9">
+                <animate attributeName="x" values="64;66;64;62;64" dur="4s" repeatCount="indefinite"/>
+              </rect>
+              <!-- mouth display -->
+              <rect x="40" y="50" width="30" height="4" rx="2" fill="none" stroke="#00ffa0" stroke-width="1"/>
+              <rect x="42" y="51" width="5" height="2" rx="1" fill="#00ffa0" opacity="0.8"/>
+              <rect x="49" y="51" width="5" height="2" rx="1" fill="#00ffa0" opacity="0.6"/>
+              <rect x="56" y="51" width="5" height="2" rx="1" fill="#00ffa0" opacity="0.8"/>
+              <rect x="63" y="51" width="5" height="2" rx="1" fill="#00ffa0" opacity="0.6"/>
+              <!-- antenna -->
+              <line x1="55" y1="26" x2="55" y2="12" stroke="#00ffe0" stroke-width="1.5"/>
+              <polygon points="55,8 59,16 51,16" fill="none" stroke="#00ffe0" stroke-width="1.2">
+                <animate attributeName="opacity" values="1;0.2;1" dur="0.6s" repeatCount="indefinite"/>
+              </polygon>
+              <!-- ears -->
+              <rect x="18" y="34" width="12" height="16" rx="3" fill="none" stroke="#00ffe0" stroke-width="1.2"/>
+              <rect x="22" y="39" width="4" height="6" rx="1" fill="rgba(0,255,224,0.2)"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="1.2s" repeatCount="indefinite"/></rect>
+              <rect x="80" y="34" width="12" height="16" rx="3" fill="none" stroke="#00ffe0" stroke-width="1.2"/>
+              <rect x="84" y="39" width="4" height="6" rx="1" fill="rgba(0,255,224,0.2)"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="1.2s" begin="0.4s" repeatCount="indefinite"/></rect>
+              <!-- neck bolts -->
+              <rect x="38" y="58" width="6" height="4" rx="1" fill="none" stroke="#00d4ff" stroke-width="1"/>
+              <rect x="66" y="58" width="6" height="4" rx="1" fill="none" stroke="#00d4ff" stroke-width="1"/>
+              <!-- arms hint -->
+              <rect x="14" y="62" width="14" height="22" rx="4" fill="none" stroke="rgba(0,255,224,0.4)" stroke-width="1.2"/>
+              <rect x="82" y="62" width="14" height="22" rx="4" fill="none" stroke="rgba(0,255,224,0.4)" stroke-width="1.2"/>
+              <rect x="18" y="68" width="6" height="2" rx="1" fill="rgba(0,255,224,0.3)"/>
+              <rect x="86" y="68" width="6" height="2" rx="1" fill="rgba(0,255,224,0.3)"/>
+              <!-- legs hint -->
+              <rect x="34" y="94" width="14" height="12" rx="3" fill="none" stroke="rgba(0,255,224,0.35)" stroke-width="1"/>
+              <rect x="62" y="94" width="14" height="12" rx="3" fill="none" stroke="rgba(0,255,224,0.35)" stroke-width="1"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Section head -->
+        <div class="section-head">
+          <div class="eyebrow" id="modeEyebrow">// NEURAL TRANSLATION INTERFACE ACTIVE</div>
+          <h2 id="modeTitle">LANGUAGE TRANSLATOR</h2>
+          <div class="tagline" id="modeTagline">Insert text. Select dialect. Execute translation sequence.</div>
+        </div>
+
+        <!-- Mode tabs -->
+        <div class="mode-tabs" role="tablist">
+          <button class="mode-tab active" data-mode="translate" type="button"><span class="icon-3d"><span class="icon-inner">⚡</span></span> TRANSLATE</button>
+          <button class="mode-tab" data-mode="tutorial" type="button"><span class="icon-3d"><span class="icon-inner">📘</span></span> TUTORIALS</button>
+          <button class="mode-tab" data-mode="quiz" type="button"><span class="icon-3d"><span class="icon-inner">🎯</span></span> QUIZ</button>
+        </div>
+
+        <!-- ═══ TRANSLATE PANEL ═══ -->
+        <div class="mode-panel" id="translatePanel">
+
+        <!-- HUD chips -->
+        <div class="hud-row">
+          <div class="hud-chip"><span class="icon-3d"><span class="icon-inner">⚡</span></span> 25 DIALECTS</div>
+          <div class="hud-chip"><span class="icon-3d"><span class="icon-inner">🔍</span></span> AUTO SCAN</div>
+          <div class="hud-chip"><span class="icon-3d"><span class="icon-inner">📡</span></span> LIVE DECODE</div>
+          <div class="hud-chip"><span class="icon-3d"><span class="icon-inner">🔄</span></span> SWAP MODULE</div>
+          <div class="hud-chip"><span class="icon-3d"><span class="icon-inner">📋</span></span> COPY OUTPUT</div>
+        </div>
+
+        <!-- Language selectors -->
+        <div class="lang-row">
+          <div class="lang-col">
+            <label>◈ INPUT DIALECT</label>
+            <select id="fromLang">
+              <option value="auto">⟳ AUTO SCAN</option>
+              <option value="English">🇬🇧 ENGLISH</option>
+              <option value="Hindi">🇮🇳 HINDI</option>
+              <option value="Spanish">🇪🇸 SPANISH</option>
+              <option value="French">🇫🇷 FRENCH</option>
+              <option value="German">🇩🇪 GERMAN</option>
+              <option value="Arabic">🇸🇦 ARABIC</option>
+              <option value="Chinese (Mandarin)">🇨🇳 MANDARIN</option>
+              <option value="Japanese">🇯🇵 JAPANESE</option>
+              <option value="Portuguese">🇵🇹 PORTUGUESE</option>
+              <option value="Russian">🇷🇺 RUSSIAN</option>
+              <option value="Korean">🇰🇷 KOREAN</option>
+              <option value="Italian">🇮🇹 ITALIAN</option>
+              <option value="Urdu">🇵🇰 URDU</option>
+              <option value="Bengali">🇧🇩 BENGALI</option>
+              <option value="Turkish">🇹🇷 TURKISH</option>
+              <option value="Dutch">🇳🇱 DUTCH</option>
+              <option value="Swedish">🇸🇪 SWEDISH</option>
+              <option value="Greek">🇬🇷 GREEK</option>
+              <option value="Hebrew">🇮🇱 HEBREW</option>
+              <option value="Thai">🇹🇭 THAI</option>
+              <option value="Vietnamese">🇻🇳 VIETNAMESE</option>
+              <option value="Indonesian">🇮🇩 INDONESIAN</option>
+              <option value="Marathi">🇮🇳 MARATHI</option>
+              <option value="Tamil">🇮🇳 TAMIL</option>
+            </select>
+          </div>
+
+          <div style="display:flex;justify-content:center;align-items:flex-end">
+            <button class="swap-btn icon-3d" id="swapBtn" title="Swap" aria-label="Swap languages"><span class="icon-inner">⇄</span></button>
+          </div>
+
+          <div class="lang-col">
+            <label>◈ OUTPUT DIALECT</label>
+            <select id="toLang">
+              <option value="Hindi" selected>🇮🇳 HINDI</option>
+              <option value="English">🇬🇧 ENGLISH</option>
+              <option value="Spanish">🇪🇸 SPANISH</option>
+              <option value="French">🇫🇷 FRENCH</option>
+              <option value="German">🇩🇪 GERMAN</option>
+              <option value="Arabic">🇸🇦 ARABIC</option>
+              <option value="Chinese (Mandarin)">🇨🇳 MANDARIN</option>
+              <option value="Japanese">🇯🇵 JAPANESE</option>
+              <option value="Portuguese">🇵🇹 PORTUGUESE</option>
+              <option value="Russian">🇷🇺 RUSSIAN</option>
+              <option value="Korean">🇰🇷 KOREAN</option>
+              <option value="Italian">🇮🇹 ITALIAN</option>
+              <option value="Urdu">🇵🇰 URDU</option>
+              <option value="Bengali">🇧🇩 BENGALI</option>
+              <option value="Turkish">🇹🇷 TURKISH</option>
+              <option value="Dutch">🇳🇱 DUTCH</option>
+              <option value="Swedish">🇸🇪 SWEDISH</option>
+              <option value="Greek">🇬🇷 GREEK</option>
+              <option value="Hebrew">🇮🇱 HEBREW</option>
+              <option value="Thai">🇹🇭 THAI</option>
+              <option value="Vietnamese">🇻🇳 VIETNAMESE</option>
+              <option value="Indonesian">🇮🇩 INDONESIAN</option>
+              <option value="Marathi">🇮🇳 MARATHI</option>
+              <option value="Tamil">🇮🇳 TAMIL</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Text areas -->
+        <div class="text-row">
+          <div>
+            <div class="text-col-label">
+              <span>▸ INPUT STREAM</span>
+              <span class="char-count" id="charCount">0 / 1000</span>
+            </div>
+            <textarea id="inputText" placeholder="[ AWAITING DATA INPUT... ]&#10;Type or paste text to translate." maxlength="1000" aria-label="Text to translate"></textarea>
+          </div>
+          <div>
+            <div class="text-col-label">
+              <span>▸ DECODED OUTPUT</span>
+              <span class="detected-tag" id="detectedLang"></span>
+            </div>
+            <div class="output-box" id="outputBox" aria-live="polite" role="region">
+              <span class="output-placeholder">[ STANDBY — AWAITING TRANSLATION COMMAND ]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <button class="btn-primary" id="translateBtn">
+            <span class="icon-3d"><span class="icon-inner">⚡</span></span><span>EXECUTE</span>
+          </button>
+          <button class="btn-sec" id="clearBtn"><span class="icon-3d"><span class="icon-inner">✕</span></span> CLEAR</button>
+          <button class="btn-sec" id="copyBtn" disabled><span class="icon-3d"><span class="icon-inner">◈</span></span> COPY</button>
+          <span class="status" id="statusMsg"></span>
+        </div>
+
+        </div><!-- /translatePanel -->
+
+        <!-- ═══ TUTORIAL PANEL ═══ -->
+        <div class="mode-panel hidden" id="tutorialPanel">
+          <div class="lang-row" style="grid-template-columns:1fr 1fr;">
+            <div class="lang-col">
+              <label>◈ LANGUAGE TO LEARN</label>
+              <select id="tutorLang">
+                <option value="Hindi">🇮🇳 HINDI</option>
+                <option value="English">🇬🇧 ENGLISH</option>
+                <option value="Spanish">🇪🇸 SPANISH</option>
+                <option value="French">🇫🇷 FRENCH</option>
+                <option value="German">🇩🇪 GERMAN</option>
+                <option value="Arabic">🇸🇦 ARABIC</option>
+                <option value="Chinese (Mandarin)">🇨🇳 MANDARIN</option>
+                <option value="Japanese">🇯🇵 JAPANESE</option>
+                <option value="Portuguese">🇵🇹 PORTUGUESE</option>
+                <option value="Russian">🇷🇺 RUSSIAN</option>
+                <option value="Korean">🇰🇷 KOREAN</option>
+                <option value="Italian">🇮🇹 ITALIAN</option>
+                <option value="Urdu">🇵🇰 URDU</option>
+                <option value="Bengali">🇧🇩 BENGALI</option>
+                <option value="Turkish">🇹🇷 TURKISH</option>
+                <option value="Dutch">🇳🇱 DUTCH</option>
+                <option value="Swedish">🇸🇪 SWEDISH</option>
+                <option value="Greek">🇬🇷 GREEK</option>
+                <option value="Hebrew">🇮🇱 HEBREW</option>
+                <option value="Thai">🇹🇭 THAI</option>
+                <option value="Vietnamese">🇻🇳 VIETNAMESE</option>
+                <option value="Indonesian">🇮🇩 INDONESIAN</option>
+                <option value="Marathi">🇮🇳 MARATHI</option>
+                <option value="Tamil">🇮🇳 TAMIL</option>
+              </select>
+            </div>
+            <div class="lang-col">
+              <label>◈ LESSON LEVEL</label>
+              <select id="tutorLevel">
+                <option value="absolute beginner">⭐ BEGINNER</option>
+                <option value="intermediate">⭐⭐ INTERMEDIATE</option>
+                <option value="advanced">⭐⭐⭐ ADVANCED</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-bottom:1rem;">
+            <button class="btn-primary" id="tutorBtn">
+              <span class="icon-3d"><span class="icon-inner">📘</span></span><span>GENERATE LESSON</span>
+            </button>
+            <span class="status" id="tutorStatus"></span>
+          </div>
+
+          <div class="output-box" id="tutorOutput" style="min-height:260px;">
+            <span class="output-placeholder">[ STANDBY — SELECT A LANGUAGE AND GENERATE A LESSON ]</span>
+          </div>
+
+          <div id="tutorVideos" class="hidden" style="margin-top:1.2rem;">
+            <div class="text-col-label" style="margin-bottom:10px;">
+              <span>▸ VIDEO LESSONS</span>
+            </div>
+            <div id="tutorVideoGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;"></div>
+          </div>
+        </div><!-- /tutorialPanel -->
+
+        <!-- ═══ QUIZ PANEL ═══ -->
+        <div class="mode-panel hidden" id="quizPanel">
+          <div class="lang-row" style="grid-template-columns:1fr 1fr;">
+            <div class="lang-col">
+              <label>◈ QUIZ LANGUAGE</label>
+              <select id="quizLang">
+                <option value="Hindi">🇮🇳 HINDI</option>
+                <option value="English">🇬🇧 ENGLISH</option>
+                <option value="Spanish">🇪🇸 SPANISH</option>
+                <option value="French">🇫🇷 FRENCH</option>
+                <option value="German">🇩🇪 GERMAN</option>
+                <option value="Arabic">🇸🇦 ARABIC</option>
+                <option value="Chinese (Mandarin)">🇨🇳 MANDARIN</option>
+                <option value="Japanese">🇯🇵 JAPANESE</option>
+                <option value="Portuguese">🇵🇹 PORTUGUESE</option>
+                <option value="Russian">🇷🇺 RUSSIAN</option>
+                <option value="Korean">🇰🇷 KOREAN</option>
+                <option value="Italian">🇮🇹 ITALIAN</option>
+                <option value="Urdu">🇵🇰 URDU</option>
+                <option value="Bengali">🇧🇩 BENGALI</option>
+                <option value="Turkish">🇹🇷 TURKISH</option>
+                <option value="Dutch">🇳🇱 DUTCH</option>
+                <option value="Swedish">🇸🇪 SWEDISH</option>
+                <option value="Greek">🇬🇷 GREEK</option>
+                <option value="Hebrew">🇮🇱 HEBREW</option>
+                <option value="Thai">🇹🇭 THAI</option>
+                <option value="Vietnamese">🇻🇳 VIETNAMESE</option>
+                <option value="Indonesian">🇮🇩 INDONESIAN</option>
+                <option value="Marathi">🇮🇳 MARATHI</option>
+                <option value="Tamil">🇮🇳 TAMIL</option>
+              </select>
+            </div>
+            <div class="lang-col">
+              <label>◈ DIFFICULTY</label>
+              <select id="quizLevel">
+                <option value="absolute beginner">⭐ BEGINNER</option>
+                <option value="intermediate">⭐⭐ INTERMEDIATE</option>
+                <option value="advanced">⭐⭐⭐ ADVANCED</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-bottom:1rem;">
+            <button class="btn-primary" id="quizBtn">
+              <span class="icon-3d"><span class="icon-inner">🎯</span></span><span>GENERATE QUIZ</span>
+            </button>
+            <button class="btn-sec hidden" id="quizSubmitBtn"><span class="icon-3d"><span class="icon-inner">✓</span></span> SUBMIT ANSWERS</button>
+            <button class="btn-sec hidden" id="quizRetryBtn"><span class="icon-3d"><span class="icon-inner">↻</span></span> NEW QUIZ</button>
+            <span class="status" id="quizStatus"></span>
+          </div>
+
+          <div id="quizArea">
+            <div class="output-box" id="quizPlaceholder">
+              <span class="output-placeholder">[ STANDBY — SELECT A LANGUAGE AND GENERATE A QUIZ ]</span>
+            </div>
+          </div>
+          <div id="quizResult" class="hidden"></div>
+        </div><!-- /quizPanel -->
+
+        <!-- Game footer stats -->
+        <div class="game-footer">
+          <div class="stats-grid">
+            <div class="stat-block" style="--fill:0.78">
+              <div class="stat-label">NEURAL CAPACITY</div>
+              <div class="stat-val" id="neuralVal">78%</div>
+            </div>
+            <div class="stat-block" style="--fill:1.0">
+              <div class="stat-label">DIALECTS ONLINE</div>
+              <div class="stat-val">25</div>
+            </div>
+            <div class="stat-block" style="--fill:0.42" id="xpStatBlock">
+              <div class="stat-label">MISSION XP</div>
+              <div class="stat-val" id="xpVal">420</div>
+            </div>
+          </div>
+          <div class="footer-line">
+            <span>⚙ UNIT-7 ONLINE</span>
+            <span class="footer-sep">//</span>
+            <span>CTRL+ENTER TO FIRE</span>
+            <span class="footer-sep">//</span>
+            <span>⇄ SWAP DIALECTS</span>
+            <span class="footer-sep">//</span>
+            <span>◈ COPY OUTPUT</span>
+          </div>
+        </div>
+
+      </div><!-- /card-inner -->
+    </div><!-- /mech-card -->
+  </div><!-- /scene -->
+</div><!-- /wrapper -->
+
+<!-- ═══ GAME BAR ═══ -->
+<div class="game-bar">
+  <div class="game-bar-left">
+    <div class="player-icon icon-3d"><span class="icon-inner">🤖</span></div>
+    <div>
+      <div class="player-name">UNIT-7</div>
+      <div class="player-level">LVL 12 // TRANSLATOR CLASS</div>
+    </div>
+    <div class="xp-block">
+      <div class="xp-label">XP PROGRESS</div>
+      <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+    </div>
+  </div>
+  <div class="game-bar-right">
+    <div>
+      <div class="score-label">SCORE</div>
+      <div class="score-block" id="scoreDisplay">004200</div>
+    </div>
+    <div class="combo-pill" id="comboPill">×1 COMBO</div>
+    <button id="logoutBtn" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.1em;background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:var(--r);cursor:pointer;">⏻ LOGOUT</button>
+  </div>
+</div>
+</div><!-- /gameScreen -->
+
+<script>
+  // ═══════════════════════════════════════════════════════════
+  // LOCAL AUTH — accounts + per-user score/xp live in this
+  // browser's persistent storage (localStorage). No server.
+  // ═══════════════════════════════════════════════════════════
+  const $ = id => document.getElementById(id);
+  let CURRENT_USER = null;
+
+  async function sha256(str){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function loadUsers(){
+    try{
+      const raw = localStorage.getItem('robo-translate-users');
+      return raw ? JSON.parse(raw) : {};
+    }catch(e){ return {}; }
+  }
+  async function saveUsers(users){
+    localStorage.setItem('robo-translate-users', JSON.stringify(users));
+  }
+
+  function showScreen(which){
+    $('loginScreen').classList.toggle('hidden', which !== 'login');
+    $('gameScreen').style.display = which === 'game' ? '' : 'none';
+  }
+
+  async function enterGame(username){
+    CURRENT_USER = username;
+    localStorage.setItem('robo-translate-session', username);
+    const nameEl = document.querySelector('.player-name');
+    if(nameEl) nameEl.textContent = username.toUpperCase();
+    await loadPlayerStats();
+    showScreen('game');
+  }
+
+  $('registerBtn').addEventListener('click', async () => {
+    const username = $('regUser').value.trim();
+    const password = $('regPass').value;
+    const password2 = $('regPass2').value;
+    const msg = $('registerMsg');
+    msg.className = 'term-msg'; msg.textContent = '';
+    if (!username || !password) { msg.className = 'term-msg err'; msg.textContent = '⚠ ALL FIELDS REQUIRED'; return; }
+    if (password.length < 6) { msg.className = 'term-msg err'; msg.textContent = '⚠ ACCESS CODE TOO SHORT (MIN 6)'; return; }
+    if (password !== password2) { msg.className = 'term-msg err'; msg.textContent = '⚠ ACCESS CODES DO NOT MATCH'; return; }
+    $('registerBtn').disabled = true;
+    try {
+      const users = await loadUsers();
+      const key = username.toLowerCase();
+      if (users[key]) {
+        msg.className = 'term-msg err'; msg.textContent = '✕ OPERATOR ID ALREADY TAKEN';
+      } else {
+        const hash = await sha256(password);
+        users[key] = { username, hash, score: 4200, xp: 42 };
+        await saveUsers(users);
+        msg.className = 'term-msg ok'; msg.textContent = '✓ UNIT REGISTERED — LOADING...';
+        setTimeout(() => enterGame(username), 400);
+      }
+    } catch(e) {
+      msg.className = 'term-msg err'; msg.textContent = '✕ CONNECTION LOST';
+    }
+    $('registerBtn').disabled = false;
+  });
+
+  // ── Resume an existing session on reload ──
+  (async function checkAuth(){
+    try{
+      const s = localStorage.getItem('robo-translate-session');
+      if (s) {
+        const users = await loadUsers();
+        const rec = users[s.toLowerCase()];
+        if (rec) { await enterGame(rec.username); return; }
+      }
+    }catch(e){ /* no session yet */ }
+    showScreen('login');
+  })();
+
+  async function loadPlayerStats(){
+    try{
+      const users = await loadUsers();
+      const rec = users[CURRENT_USER.toLowerCase()];
+      if (rec) {
+        score = rec.score ?? 4200;
+        xp = rec.xp ?? 42;
+        scoreDisplay.textContent = String(score).padStart(6, '0');
+        xpFill.style.width = xp + '%';
+        xpVal.textContent = xp * 42;
+        $('xpStatBlock').style.setProperty('--fill', xp / 100);
+      }
+    }catch(e){}
+  }
+
+  async function savePlayerStats(){
+    if (!CURRENT_USER) return;
+    try{
+      const users = await loadUsers();
+      const key = CURRENT_USER.toLowerCase();
+      if (users[key]) {
+        users[key].score = score;
+        users[key].xp = xp;
+        await saveUsers(users);
+      }
+    }catch(e){}
+  }
+  const inputText    = $('inputText');
+  const outputBox    = $('outputBox');
+  const fromLang     = $('fromLang');
+  const toLang       = $('toLang');
+  const translateBtn = $('translateBtn');
+  const clearBtn     = $('clearBtn');
+  const copyBtn      = $('copyBtn');
+  const swapBtn      = $('swapBtn');
+  const statusMsg    = $('statusMsg');
+  const charCount    = $('charCount');
+  const detectedLang = $('detectedLang');
+  const card         = $('mechCard');
+  const scoreDisplay = $('scoreDisplay');
+  const comboPill    = $('comboPill');
+  const xpFill       = $('xpFill');
+  const xpVal        = $('xpVal');
+  const neuralVal    = $('neuralVal');
+
+  let lastTranslation = '';
+  let score = 4200;
+  let combo = 1;
+  let xp = 42;
+
+  // ── 3D TILT on hover ──
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const dx = (e.clientX - rect.left - rect.width  / 2) / (rect.width  / 2);
+    const dy = (e.clientY - rect.top  - rect.height / 2) / (rect.height / 2);
+    card.style.transform = `rotateX(${dy * -12}deg) rotateY(${dx * 14}deg) scale(1.02)`;
+    card.classList.add('is-tilting');
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateX(0) rotateY(0) scale(1)';
+    card.classList.remove('is-tilting');
+  });
+
+  // ── Char counter ──
+  inputText.addEventListener('input', () => {
+    const len = inputText.value.length;
+    charCount.textContent = `${len} / 1000`;
+    charCount.style.color = len > 950 ? '#ff2060' : len > 800 ? '#ff6b00' : '';
+    // update neural capacity animation
+    const pct = Math.max(20, 100 - Math.round(len / 10));
+    neuralVal.textContent = pct + '%';
+    card.querySelector('.stat-block').style.setProperty('--fill', pct / 100);
+  });
+
+  // ── Keyboard shortcut ──
+  inputText.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') translateBtn.click();
+  });
+
+  function setStatus(msg, type) {
+    statusMsg.className = 'status' + (type ? ' ' + type : '');
+    statusMsg.textContent = msg;
+  }
+
+  // ── Swap ──
+  swapBtn.addEventListener('click', () => {
+    const f = fromLang.value, t = toLang.value;
+    if (f === 'auto') return;
+    const fVals = [...fromLang.options].map(o => o.value);
+    const tVals = [...toLang.options].map(o => o.value);
+    if (tVals.includes(f)) fromLang.value = t;
+    if (fVals.includes(t)) toLang.value = f;
+  });
+
+  // ── Clear ──
+  clearBtn.addEventListener('click', () => {
+    inputText.value = '';
+    charCount.textContent = '0 / 1000';
+    outputBox.innerHTML = '<span class="output-placeholder">[ STANDBY — AWAITING TRANSLATION COMMAND ]</span>';
+    outputBox.className = 'output-box';
+    detectedLang.textContent = '';
+    lastTranslation = '';
+    copyBtn.disabled = true;
+    setStatus('');
+    combo = 1;
+    comboPill.textContent = '×1 COMBO';
+  });
+
+  // ── Copy ──
+  copyBtn.addEventListener('click', () => {
+    if (!lastTranslation) return;
+    navigator.clipboard.writeText(lastTranslation).then(() => {
+      setStatus('◈ OUTPUT COPIED', 'success');
+      copyBtn.textContent = '✓ COPIED';
+      setTimeout(() => { setStatus(''); copyBtn.textContent = '◈ COPY'; }, 2500);
+    });
+  });
+
+  // ── Update score ──
+  function updateScore(pts) {
+    score += pts * combo;
+    scoreDisplay.textContent = String(score).padStart(6, '0');
+    scoreDisplay.style.animation = 'none';
+    scoreDisplay.offsetHeight;
+    scoreDisplay.style.animation = 'scorePop 0.4s ease';
+    xp = Math.min(100, xp + Math.round(pts / 10));
+    xpFill.style.width = xp + '%';
+    xpVal.textContent = xp * 42;
+    $('xpStatBlock').style.setProperty('--fill', xp / 100);
+    savePlayerStats();
+  }
+
+  // ── Translate ──
+  translateBtn.addEventListener('click', async () => {
+    const text = inputText.value.trim();
+    if (!text) { setStatus('⚠ INPUT STREAM EMPTY', 'warn'); return; }
+
+    const isAuto = fromLang.value === 'auto';
+    const from   = isAuto ? 'the automatically detected language' : fromLang.value;
+    const to     = toLang.value;
+
+    translateBtn.disabled = true;
+    outputBox.innerHTML = '⟳ NEURAL DECODING<span class="dots"><span>.</span><span>.</span><span>.</span></span>';
+    outputBox.className = 'output-box loading';
+    detectedLang.textContent = '';
+    setStatus(''); copyBtn.disabled = true;
+
+    const prompt = isAuto
+      ? `Translate the following text to ${to}. First line must be exactly: DETECTED: [language name]\nThen from the second line, output only the translated text — no explanations, no quotes.\n\nText:\n${text}`
+      : `Translate the following text from ${from} to ${to}. Return ONLY the translated text. No explanations, no preamble, no quotes.\n\nText:\n${text}`;
+
+    try {
+      const res = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const data = await res.json();
+      if (data.content && data.content[0]) {
+        let result = data.content[0].text.trim();
+        if (isAuto && result.startsWith('DETECTED:')) {
+          const lines = result.split('\n');
+          detectedLang.textContent = '◈ ' + lines[0].replace('DETECTED:', '').trim().toUpperCase();
+          result = lines.slice(1).join('\n').trim();
+        }
+        lastTranslation = result;
+        outputBox.textContent = result;
+        outputBox.className = 'output-box has-content pop';
+        copyBtn.disabled = false;
+        setStatus('✓ DECODE COMPLETE', 'success');
+        setTimeout(() => setStatus(''), 2500);
+        combo = Math.min(8, combo + 1);
+        comboPill.textContent = `×${combo} COMBO`;
+        updateScore(text.length);
+        spawnBurst();
+      } else {
+        outputBox.innerHTML = '<span style="color:#ff4080;">⚠ DECODE FAILURE — RETRY</span>';
+        outputBox.className = 'output-box';
+        setStatus('✕ ERROR', 'error');
+        combo = 1; comboPill.textContent = '×1 COMBO';
+      }
+    } catch (err) {
+      outputBox.innerHTML = '<span style="color:#ff4080;">⚠ CONNECTION LOST — CHECK API KEY</span>';
+      outputBox.className = 'output-box';
+      setStatus('✕ OFFLINE', 'error');
+      combo = 1; comboPill.textContent = '×1 COMBO';
+    }
+
+    translateBtn.disabled = false;
+  });
+
+  // ── Burst ──
+  function spawnBurst() {
+    const symbols = ['⚡','✦','◈','⊕','✕','△','◇','⊗'];
+    for (let i = 0; i < 10; i++) {
+      const el = document.createElement('div');
+      el.textContent = symbols[i % symbols.length];
+      const angle = (i / 10) * 360;
+      const dist = 70 + Math.random() * 90;
+      const tx = Math.cos(angle * Math.PI / 180) * dist;
+      const ty = Math.sin(angle * Math.PI / 180) * dist;
+      const colors = ['#00ffe0','#00ffa0','#00d4ff','#ffd700'];
+      const col = colors[i % colors.length];
+      const styleTag = document.createElement('style');
+      styleTag.textContent = `@keyframes b${i}{0%{transform:translate(-50%,-50%) scale(0) rotate(0);opacity:1}100%{transform:translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(1.5) rotate(180deg);opacity:0}}`;
+      document.head.appendChild(styleTag);
+      el.style.cssText = `position:fixed;font-size:20px;left:50%;top:55%;pointer-events:none;z-index:9999;color:${col};text-shadow:0 0 10px ${col};animation:b${i} 0.9s cubic-bezier(0,.9,.57,1) forwards;font-family:'Share Tech Mono',monospace`;
+      document.body.appendChild(el);
+      setTimeout(() => { el.remove(); styleTag.remove(); }, 1000);
+    }
+  }
+
+  // score pop animation
+  const sStyle = document.createElement('style');
+  sStyle.textContent = `@keyframes scorePop{0%{transform:scale(1)}30%{transform:scale(1.3);color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,0.8)}100%{transform:scale(1)}}`;
+  document.head.appendChild(sStyle);
+
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    await savePlayerStats();
+    try { localStorage.removeItem('robo-translate-session'); } catch(e){}
+    CURRENT_USER = null;
+    $('regUser').value = ''; $('regPass').value = ''; $('regPass2').value = '';
+    $('registerMsg').textContent = '';
+    showScreen('login');
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // MODE TABS — Translate / Tutorials / Quiz
+  // ═══════════════════════════════════════════════════════════
+  const modeCopy = {
+    translate: {
+      eyebrow: '// NEURAL TRANSLATION INTERFACE ACTIVE',
+      title: 'LANGUAGE TRANSLATOR',
+      tagline: 'Insert text. Select dialect. Execute translation sequence.'
+    },
+    tutorial: {
+      eyebrow: '// LANGUAGE LEARNING MODULE ACTIVE',
+      title: 'DIALECT TUTORIALS',
+      tagline: 'Pick a language and level. Load a bite-size lesson.'
+    },
+    quiz: {
+      eyebrow: '// KNOWLEDGE ASSESSMENT MODULE ACTIVE',
+      title: 'LANGUAGE QUIZ',
+      tagline: 'Test what you\u2019ve learned. Earn score and XP for correct answers.'
+    }
+  };
+
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const mode = tab.dataset.mode;
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t === tab));
+      $('translatePanel').classList.toggle('hidden', mode !== 'translate');
+      $('tutorialPanel').classList.toggle('hidden', mode !== 'tutorial');
+      $('quizPanel').classList.toggle('hidden', mode !== 'quiz');
+      const c = modeCopy[mode];
+      $('modeEyebrow').textContent = c.eyebrow;
+      $('modeTitle').textContent = c.title;
+      $('modeTagline').textContent = c.tagline;
+    });
+  });
+
+  // ── shared helper: call Claude, expect either plain text or JSON ──
+  async function callClaude(prompt) {
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        max_tokens: 1800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    if (!data.content || !data.content[0]) throw new Error('empty response');
+    return data.content[0].text.trim();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // TUTORIALS
+  // ═══════════════════════════════════════════════════════════
+  $('tutorBtn').addEventListener('click', async () => {
+    const lang = $('tutorLang').value;
+    const level = $('tutorLevel').value;
+    const out = $('tutorOutput');
+    const status = $('tutorStatus');
+    $('tutorBtn').disabled = true;
+    status.className = 'status'; status.textContent = '';
+    out.innerHTML = '⟳ COMPILING LESSON<span class="dots"><span>.</span><span>.</span><span>.</span></span>';
+    out.className = 'output-box loading';
+
+    const prompt = `You are a friendly language tutor. Write a short, well-structured ${level} lesson for an English speaker learning ${lang}.
+
+Use plain text only — no markdown symbols like # or ** or *. Structure it with short ALL-CAPS section labels on their own line, like this layout:
+
+GREETING
+[2-3 essential greeting phrases with pronunciation in parentheses and English meaning]
+
+CORE VOCABULARY
+[6-8 useful words or short phrases, each on its own line as: word (pronunciation) — meaning]
+
+GRAMMAR TIP
+[one short, practical grammar or sentence-structure tip]
+
+TRY IT
+[one simple example sentence in ${lang} with pronunciation and English translation]
+
+Keep the whole thing concise enough to read in under a minute. No preamble, no closing remarks, start directly with GREETING.`;
+
+    try {
+      const result = await callClaude(prompt);
+      out.textContent = result;
+      out.className = 'output-box has-content pop';
+      status.className = 'status success'; status.textContent = '✓ LESSON LOADED';
+      setTimeout(() => { status.textContent = ''; }, 2500);
+      updateScore(40);
+      spawnBurst();
+      loadTutorVideos(lang, level);
+    } catch (e) {
+      out.innerHTML = '<span style="color:#ff4080;">⚠ LESSON LOAD FAILED — RETRY</span>';
+      out.className = 'output-box';
+      status.className = 'status error'; status.textContent = '✕ ERROR';
+    }
+    $('tutorBtn').disabled = false;
+  });
+
+  // ── Video options: ask Claude (web-aware) to suggest real, well-known
+  // channels/videos for this language/level, then render as link cards ──
+  async function loadTutorVideos(lang, level) {
+    const wrap = $('tutorVideos');
+    const grid = $('tutorVideoGrid');
+    wrap.classList.remove('hidden');
+    grid.innerHTML = '<div class="output-box loading" style="grid-column:1/-1;">⟳ FINDING VIDEO LESSONS<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>';
+
+    const prompt = `Suggest 4 well-known, real YouTube channels or series that teach ${lang} for a ${level} learner (English speaker audience). For each, respond with ONLY raw JSON, no markdown fences, no commentary, in exactly this shape:
+{"videos":[{"title":"channel or series name","description":"one short phrase on what it covers","searchQuery":"a good YouTube search query to find it"}]}
+Give exactly 4 entries. Use real, currently active, reputable language-learning channels only (e.g. type of channel like a well-known polyglot teacher, a dedicated ${lang} learning channel, a beginner phrasebook series, a listening-practice channel) — do not invent fake channel names.`;
+
+    try {
+      let raw = await callClaude(prompt);
+      raw = raw.replace(/```json|```/g, '').trim();
+      const data = JSON.parse(raw);
+      grid.innerHTML = '';
+      (data.videos || []).forEach(v => {
+        const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(v.searchQuery || v.title);
+        const card = document.createElement('a');
+        card.className = 'video-card';
+        card.href = url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.innerHTML = `
+          <div class="thumb-wrap">
+            <div class="play-badge"><span>▶</span></div>
+          </div>
+          <div class="vc-title">${escapeHtml(v.title || 'Video lesson')}</div>
+          <div class="vc-src">${escapeHtml(v.description || 'YouTube')}</div>`;
+        grid.appendChild(card);
+      });
+      if (!grid.children.length) {
+        grid.innerHTML = '<div class="output-box" style="grid-column:1/-1;"><span class="output-placeholder">[ NO VIDEO SUGGESTIONS AVAILABLE ]</span></div>';
+      }
+    } catch (e) {
+      grid.innerHTML = '<div class="output-box" style="grid-column:1/-1;"><span style="color:#ff4080;">⚠ VIDEO LOOKUP FAILED</span></div>';
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // QUIZ
+  // ═══════════════════════════════════════════════════════════
+  let currentQuiz = null; // { questions: [{q, options:[...], answerIndex}] }
+
+  function renderQuiz(quiz) {
+    const area = $('quizArea');
+    area.innerHTML = '';
+    quiz.questions.forEach((q, qi) => {
+      const card = document.createElement('div');
+      card.className = 'quiz-card';
+      const qEl = document.createElement('div');
+      qEl.className = 'quiz-q';
+      qEl.innerHTML = `<span class="quiz-q-num">Q${qi + 1}</span>${escapeHtml(q.question)}`;
+      card.appendChild(qEl);
+      const opts = document.createElement('div');
+      opts.className = 'quiz-opts';
+      q.options.forEach((opt, oi) => {
+        const label = document.createElement('label');
+        label.className = 'quiz-opt';
+        label.dataset.qi = qi; label.dataset.oi = oi;
+        label.innerHTML = `<input type="radio" name="q${qi}" value="${oi}"> <span>${escapeHtml(opt)}</span>`;
+        label.addEventListener('click', () => {
+          opts.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('selected'));
+          label.classList.add('selected');
+        });
+        opts.appendChild(label);
+      });
+      card.appendChild(opts);
+      area.appendChild(card);
+    });
+  }
+
+  function escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  $('quizBtn').addEventListener('click', async () => {
+    const lang = $('quizLang').value;
+    const level = $('quizLevel').value;
+    const status = $('quizStatus');
+    $('quizBtn').disabled = true;
+    status.className = 'status'; status.textContent = '';
+    $('quizResult').classList.add('hidden');
+    $('quizSubmitBtn').classList.add('hidden');
+    $('quizRetryBtn').classList.add('hidden');
+    $('quizArea').innerHTML = '<div class="output-box loading">⟳ BUILDING QUIZ<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>';
+
+    const prompt = `Create a 5-question multiple choice quiz to test an English speaker's ${level} knowledge of ${lang} vocabulary, phrases, and basic grammar.
+
+Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly this shape:
+{"questions":[{"question":"string (may include ${lang} text and ask for English meaning, or vice versa)","options":["string","string","string","string"],"answerIndex":0}]}
+
+Make exactly 5 questions, each with exactly 4 options, and answerIndex being the 0-based index of the correct option. Vary question style: some vocabulary, some translation, some simple grammar/usage.`;
+
+    try {
+      let raw = await callClaude(prompt);
+      raw = raw.replace(/```json|```/g, '').trim();
+      const quiz = JSON.parse(raw);
+      if (!quiz.questions || !quiz.questions.length) throw new Error('bad quiz shape');
+      currentQuiz = quiz;
+      renderQuiz(quiz);
+      $('quizSubmitBtn').classList.remove('hidden');
+      $('quizRetryBtn').classList.remove('hidden');
+      status.className = 'status success'; status.textContent = '✓ QUIZ READY';
+      setTimeout(() => { status.textContent = ''; }, 2500);
+    } catch (e) {
+      $('quizArea').innerHTML = '<div class="output-box"><span style="color:#ff4080;">⚠ QUIZ GENERATION FAILED — RETRY</span></div>';
+      status.className = 'status error'; status.textContent = '✕ ERROR';
+    }
+    $('quizBtn').disabled = false;
+  });
+
+  $('quizSubmitBtn').addEventListener('click', () => {
+    if (!currentQuiz) return;
+    let correctCount = 0;
+    const total = currentQuiz.questions.length;
+    currentQuiz.questions.forEach((q, qi) => {
+      const selected = document.querySelector(`.quiz-opt[data-qi="${qi}"].selected`);
+      const selOi = selected ? parseInt(selected.dataset.oi, 10) : -1;
+      const group = document.querySelectorAll(`.quiz-opt[data-qi="${qi}"]`);
+      group.forEach(opt => {
+        const oi = parseInt(opt.dataset.oi, 10);
+        if (oi === q.answerIndex) opt.classList.add('correct');
+        else if (oi === selOi) opt.classList.add('incorrect');
+        opt.style.pointerEvents = 'none';
+      });
+      if (selOi === q.answerIndex) correctCount++;
+    });
+
+    const pct = Math.round((correctCount / total) * 100);
+    const resultEl = $('quizResult');
+    resultEl.className = 'quiz-score';
+    resultEl.innerHTML = `${correctCount} / ${total} CORRECT (${pct}%)<span class="sub">${
+      pct === 100 ? 'PERFECT DECODE — NEURAL CORE FULLY SYNCED' :
+      pct >= 60 ? 'SOLID RUN — KEEP TRAINING THE CORE' :
+      'MORE REPS NEEDED — RUN ANOTHER LESSON'
+    }</span>`;
+
+    $('quizSubmitBtn').classList.add('hidden');
+    updateScore(correctCount * 60);
+    spawnBurst();
+  });
+
+  $('quizRetryBtn').addEventListener('click', () => {
+    currentQuiz = null;
+    $('quizArea').innerHTML = '<div class="output-box" id="quizPlaceholder"><span class="output-placeholder">[ STANDBY — SELECT A LANGUAGE AND GENERATE A QUIZ ]</span></div>';
+    $('quizResult').classList.add('hidden');
+    $('quizSubmitBtn').classList.add('hidden');
+    $('quizRetryBtn').classList.add('hidden');
+    $('quizStatus').textContent = '';
+  });
+
+  // ── PWA: register service worker for installability + offline shell ──
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
